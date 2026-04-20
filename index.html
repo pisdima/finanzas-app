@@ -397,7 +397,6 @@
 </head>
 <body>
   <div class="container">
-    <!-- MODAL AUTH -->
     <div id="auth-modal" class="modal active">
       <div class="modal-content">
         <h2>Finanzas Pro</h2>
@@ -426,9 +425,7 @@
       </div>
     </div>
 
-    <!-- APP PRINCIPAL -->
     <div id="app" style="display:none">
-      <!-- HEADER -->
       <header class="header">
         <div class="header-top">
           <h1>Finanzas Pro</h1>
@@ -455,14 +452,12 @@
         </div>
       </header>
 
-      <!-- TABS NAVEGACIÓN -->
       <div class="tabs">
         <button class="tab-item active" onclick="cambiarTab('dashboard', event)">📊 Inicio</button>
         <button class="tab-item" onclick="cambiarTab('agregar', event)">➕ Agregar</button>
         <button class="tab-item" onclick="cambiarTab('historial', event)">📜 Historial</button>
       </div>
 
-      <!-- TAB: DASHBOARD -->
       <div id="tab-dashboard" class="tab-content active">
         <div class="card">
           <h3>Resumen</h3>
@@ -475,36 +470,27 @@
         </div>
       </div>
 
-      <!-- TAB: AGREGAR -->
       <div id="tab-agregar" class="tab-content">
         <div class="card">
           <h2>Nuevo Movimiento</h2>
-          
           <div class="selector-tipo">
             <button class="tipo-btn active" onclick="setTipo('Gasto', event)">🔴 Gasto</button>
             <button class="tipo-btn" onclick="setTipo('Ingreso', event)">🟢 Ingreso</button>
             <button class="tipo-btn" onclick="setTipo('Tarjeta', event)">💳 Tarjeta</button>
             <button class="tipo-btn" onclick="setTipo('Pendientes', event)">⏳ Pendiente</button>
           </div>
-
           <input type="hidden" id="tipo" value="Gasto">
-          
           <h4 style="margin-top:20px; font-size:13px; color:var(--muted); font-weight:700">Categoría</h4>
           <div id="categorias" class="grid-categorias"></div>
-
           <span id="lbl-venc" style="display:none; font-size:13px; color:var(--primary); font-weight:700">📅 Fecha de Vencimiento:</span>
           <input type="date" id="fManual" style="display:none">
-
           <input type="number" id="monto" placeholder="Monto $" step="0.01" inputmode="decimal">
           <input type="text" id="detalle" placeholder="¿En qué gastaste?">
-          
           <button class="btn btn-primary" onclick="enviar()">Guardar</button>
-          
           <div id="mensaje-respuesta" style="display:none; margin-top:10px"></div>
         </div>
       </div>
 
-      <!-- TAB: HISTORIAL -->
       <div id="tab-historial" class="tab-content">
         <div class="card">
           <input type="text" id="buscar" placeholder="🔍 Buscar..." onkeyup="filtrar(this.value)">
@@ -512,7 +498,6 @@
         </div>
       </div>
 
-      <!-- MODAL PERFIL -->
       <div id="profile-modal" class="modal">
         <div class="modal-content">
           <h3>Perfil</h3>
@@ -524,37 +509,20 @@
     </div>
   </div>
 
-  <!-- SUPABASE SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    // ============================================
-    // CONFIGURACIÓN SUPABASE - REEMPLAZA ESTO
-    // ============================================
-const SUPABASE_URL = "https://axmpqyncsiuwdywuanev.supabase.co";
-const SUPABASE_KEY = "sb_publishable_vM82Xw6ZT3Tyab6cDauGgg_XFFRuTlx";
+    const SUPABASE_URL = "https://axmpqyncsiuwdywuanev.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_vM82Xw6ZT3Tyab6cDauGgg_XFFRuTlx";
 
-    const { createClient } = window.supabase;
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-    // ============================================
-    // VARIABLES GLOBALES
-    // ============================================
+    // Usamos 'sb' para evitar conflictos con el objeto global de la librería
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
     const ICONS = {
-      "Supermercado": "🛒",
-      "Servicios": "⚡",
-      "Transporte": "🚌",
-      "Salidas": "🥳",
-      "Farmacia": "💊",
-      "Inversión": "📈",
-      "Salarios": "💰",
-      "Hogar": "🏠",
-      "Otros": "📦",
-      "Tarjeta": "💳",
-      "Salud": "🏥",
-      "Regalos": "🎁",
-      "Compras": "🛍️",
-      "Educación": "📚",
-      "Entretenimiento": "🍿"
+      "Supermercado": "🛒", "Servicios": "⚡", "Transporte": "🚌", "Salidas": "🥳",
+      "Farmacia": "💊", "Inversión": "📈", "Salarios": "💰", "Hogar": "🏠",
+      "Otros": "📦", "Tarjeta": "💳", "Salud": "🏥", "Regalos": "🎁",
+      "Compras": "🛍️", "Educación": "📚", "Entretenimiento": "🍿"
     };
 
     const CATEGORIAS = {
@@ -569,11 +537,8 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     let categoriaActual = null;
     let datosCache = {};
 
-    // ============================================
-    // INIT
-    // ============================================
     window.onload = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user } } = await sb.auth.getUser();
       
       if (user) {
         usuarioActual = user;
@@ -583,15 +548,9 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
         document.getElementById('user-email').textContent = user.email;
         setTipo('Gasto');
         await cargarDatos();
-      } else {
-        document.getElementById('auth-modal').classList.add('active');
-        document.getElementById('app').style.display = 'none';
       }
     };
 
-    // ============================================
-    // AUTENTICACIÓN
-    // ============================================
     function switchAuth(tipo) {
       document.getElementById('login-form').style.display = tipo === 'login' ? 'block' : 'none';
       document.getElementById('register-form').style.display = tipo === 'register' ? 'block' : 'none';
@@ -602,14 +561,8 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     async function handleLogin() {
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-password').value;
-
-      if (!email || !password) {
-        mostrarError('login-error', 'Completa todos los campos');
-        return;
-      }
-
       try {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { error } = await sb.auth.signInWithPassword({ email, password });
         if (error) throw error;
         location.reload();
       } catch (error) {
@@ -623,94 +576,56 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
       const pass1 = document.getElementById('reg-password').value;
       const pass2 = document.getElementById('reg-password2').value;
 
-      if (!nombre || !email || !pass1 || !pass2) {
-        mostrarError('register-error', 'Completa todos los campos');
-        return;
-      }
-
       if (pass1 !== pass2) {
         mostrarError('register-error', 'Las contraseñas no coinciden');
         return;
       }
 
-      if (pass1.length < 6) {
-        mostrarError('register-error', 'La contraseña debe tener al menos 6 caracteres');
-        return;
-      }
-
       try {
-        const { error } = await supabase.auth.signUp({
+        const { error } = await sb.auth.signUp({
           email,
-          password,
-          options: {
-            data: { nombre }
-          }
+          password: pass1,
+          options: { data: { nombre } }
         });
         if (error) throw error;
-        mostrarExito('register-error', 'Cuenta creada exitosamente');
-        setTimeout(() => location.reload(), 1000);
+        mostrarExito('register-error', 'Cuenta creada. Revisa tu email.');
       } catch (error) {
         mostrarError('register-error', error.message);
       }
     }
 
     async function logout() {
-      await supabase.auth.signOut();
+      await sb.auth.signOut();
       location.reload();
     }
 
-    // ============================================
-    // CARGA DE DATOS
-    // ============================================
     async function cargarDatos() {
       try {
-        const { data: movimientos, error } = await supabase
+        const { data: movimientos, error } = await sb
           .from('movimientos')
           .select('*')
           .eq('user_id', usuarioActual.id)
-          .order('fecha', { ascending: false })
-          .limit(100);
+          .order('fecha', { ascending: false });
 
         if (error) throw error;
-
         datosCache = procesarDatos(movimientos || []);
         renderizarDashboard();
         renderizarHistorial(movimientos || []);
       } catch (error) {
-        console.error('Error cargando datos:', error);
+        console.error('Error:', error);
       }
     }
 
     function procesarDatos(movimientos) {
-      let saldoTotal = 0;
-      let totalIngresos = 0;
-      let totalGastos = 0;
-      let totalTarjeta = 0;
-
+      let saldoTotal = 0, totalIngresos = 0, totalGastos = 0, totalTarjeta = 0;
       movimientos.forEach(m => {
-        if (m.tipo === 'Ingreso') {
-          totalIngresos += m.monto;
-          saldoTotal += m.monto;
-        } else if (m.tipo === 'Gasto') {
-          totalGastos += m.monto;
-          saldoTotal -= m.monto;
-        } else if (m.tipo === 'Tarjeta') {
-          totalTarjeta += m.monto;
-        }
+        if (m.tipo === 'Ingreso') { totalIngresos += m.monto; saldoTotal += m.monto; }
+        else if (m.tipo === 'Gasto') { totalGastos += m.monto; saldoTotal -= m.monto; }
+        else if (m.tipo === 'Tarjeta') { totalTarjeta += m.monto; }
       });
-
-      return {
-        saldoTotal,
-        totalIngresos,
-        totalGastos,
-        totalTarjeta,
-        movimientos
-      };
+      return { saldoTotal, totalIngresos, totalGastos, totalTarjeta, movimientos };
     }
 
-    // ============================================
-    // UI
-    // ============================================
     function cambiarTab(nombre, ev) {
       document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
@@ -723,22 +638,17 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
       document.getElementById('tipo').value = tipo;
       document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
       if (ev) ev.target.classList.add('active');
-
       document.getElementById('fManual').style.display = tipo === 'Pendientes' ? 'block' : 'none';
       document.getElementById('lbl-venc').style.display = tipo === 'Pendientes' ? 'block' : 'none';
-
       renderizarCategorias(tipo);
     }
 
     function renderizarCategorias(tipo) {
       const cats = CATEGORIAS[tipo] || [];
-      const grid = document.getElementById('categorias');
-      grid.innerHTML = cats.map(cat => `
+      document.getElementById('categorias').innerHTML = cats.map(cat => `
         <button class="categoria-btn" onclick="seleccionarCategoria('${cat}', event)">
-          ${ICONS[cat] || '📦'}
-          <span>${cat}</span>
-        </button>
-      `).join('');
+          ${ICONS[cat] || '📦'}<span>${cat}</span>
+        </button>`).join('');
       categoriaActual = null;
     }
 
@@ -750,142 +660,63 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
     function renderizarDashboard() {
       const f = (n) => n.toLocaleString('es-AR', { minimumFractionDigits: 2 });
-      
       document.getElementById('saldo-total').textContent = `$${f(datosCache.saldoTotal)}`;
       document.getElementById('total-ingresos').textContent = `$${f(datosCache.totalIngresos)}`;
       document.getElementById('total-gastos').textContent = `$${f(datosCache.totalGastos)}`;
       document.getElementById('total-tarjeta').textContent = `$${f(datosCache.totalTarjeta)}`;
-
-      const ultimas = datosCache.movimientos.slice(0, 5);
-      const html = ultimas.map(m => `
+      const html = datosCache.movimientos.slice(0, 5).map(m => `
         <div class="item">
           <div class="item-icon">${ICONS[m.categoria] || '📦'}</div>
-          <div class="item-info">
-            <b>${m.detalle}</b>
-            <small>${new Date(m.fecha).toLocaleDateString('es-AR')} • ${m.categoria}</small>
-          </div>
+          <div class="item-info"><b>${m.detalle}</b><small>${new Date(m.fecha).toLocaleDateString()} • ${m.categoria}</small></div>
           <div class="item-monto" style="color: ${m.tipo === 'Ingreso' ? 'var(--success)' : 'var(--danger)'}">
             ${m.tipo === 'Ingreso' ? '+' : '-'}$${f(m.monto)}
           </div>
-        </div>
-      `).join('') || '<p style="text-align:center; color:var(--muted)">Sin movimientos</p>';
-
+        </div>`).join('') || '<p>Sin movimientos</p>';
       document.getElementById('ultimas-transacciones').innerHTML = html;
     }
 
     function renderizarHistorial(movimientos) {
       const f = (n) => n.toLocaleString('es-AR', { minimumFractionDigits: 2 });
-      
-      const html = movimientos.map(m => `
+      document.getElementById('lista-historial').innerHTML = movimientos.map(m => `
         <div class="item">
           <div class="item-icon">${ICONS[m.categoria] || '📦'}</div>
-          <div class="item-info">
-            <b>${m.detalle}</b>
-            <small>${new Date(m.fecha).toLocaleDateString('es-AR')} • ${m.categoria}</small>
-          </div>
-          <div class="item-monto" style="color: ${m.tipo === 'Ingreso' ? 'var(--success)' : 'var(--danger)'}">
-            ${m.tipo === 'Ingreso' ? '+' : '-'}$${f(m.monto)}
-          </div>
+          <div class="item-info"><b>${m.detalle}</b><small>${new Date(m.fecha).toLocaleDateString()}</small></div>
+          <div class="item-monto" style="color: ${m.tipo === 'Ingreso' ? 'var(--success)' : 'var(--danger)'}">$${f(m.monto)}</div>
           <button class="btn-danger" onclick="borrarMovimiento('${m.id}')">🗑</button>
-        </div>
-      `).join('') || '<p style="text-align:center; color:var(--muted)">Sin registros</p>';
-
-      document.getElementById('lista-historial').innerHTML = html;
+        </div>`).join('') || '<p>Sin registros</p>';
     }
 
     function filtrar(valor) {
-      const movimientosFiltr = datosCache.movimientos.filter(m => 
-        m.detalle.toLowerCase().includes(valor.toLowerCase()) ||
-        m.categoria.toLowerCase().includes(valor.toLowerCase())
-      );
-      const f = (n) => n.toLocaleString('es-AR', { minimumFractionDigits: 2 });
-      
-      const html = movimientosFiltr.map(m => `
-        <div class="item">
-          <div class="item-icon">${ICONS[m.categoria] || '📦'}</div>
-          <div class="item-info">
-            <b>${m.detalle}</b>
-            <small>${new Date(m.fecha).toLocaleDateString('es-AR')} • ${m.categoria}</small>
-          </div>
-          <div class="item-monto" style="color: ${m.tipo === 'Ingreso' ? 'var(--success)' : 'var(--danger)'}">
-            ${m.tipo === 'Ingreso' ? '+' : '-'}$${f(m.monto)}
-          </div>
-        </div>
-      `).join('') || '<p style="text-align:center; color:var(--muted)">Sin resultados</p>';
-
-      document.getElementById('lista-historial').innerHTML = html;
+      const filtrados = datosCache.movimientos.filter(m => m.detalle.toLowerCase().includes(valor.toLowerCase()));
+      renderizarHistorial(filtrados);
     }
 
-    // ============================================
-    // OPERACIONES
-    // ============================================
     async function enviar() {
       const monto = document.getElementById('monto').value;
       const detalle = document.getElementById('detalle').value;
       const fecha = document.getElementById('fManual').value;
-      const msgDiv = document.getElementById('mensaje-respuesta');
-
-      if (!categoriaActual || !monto || !detalle) {
-        mostrarError('mensaje-respuesta', 'Completa todos los campos');
-        return;
-      }
-
+      if (!categoriaActual || !monto || !detalle) { mostrarError('mensaje-respuesta', 'Completa todo'); return; }
       try {
-        const { error } = await supabase.from('movimientos').insert([{
-          user_id: usuarioActual.id,
-          tipo: tipoActual,
-          categoria: categoriaActual,
-          detalle: detalle,
-          monto: parseFloat(monto),
-          fecha: fecha || new Date().toISOString()
+        const { error } = await sb.from('movimientos').insert([{
+          user_id: usuarioActual.id, tipo: tipoActual, categoria: categoriaActual,
+          detalle, monto: parseFloat(monto), fecha: fecha || new Date().toISOString()
         }]);
-
         if (error) throw error;
-
-        mostrarExito('mensaje-respuesta', '✅ Guardado correctamente');
-        document.getElementById('monto').value = '';
-        document.getElementById('detalle').value = '';
-        document.getElementById('fManual').value = '';
-        
-        setTimeout(async () => {
-          await cargarDatos();
-          msgDiv.style.display = 'none';
-        }, 1000);
-      } catch (error) {
-        mostrarError('mensaje-respuesta', 'Error: ' + error.message);
-      }
+        mostrarExito('mensaje-respuesta', '✅ Guardado');
+        setTimeout(() => location.reload(), 1000);
+      } catch (error) { mostrarError('mensaje-respuesta', error.message); }
     }
 
     async function borrarMovimiento(id) {
-      if (!confirm('¿Borrar este movimiento?')) return;
-
-      try {
-        const { error } = await supabase.from('movimientos').delete().eq('id', id);
-        if (error) throw error;
+      if (confirm('¿Borrar?')) {
+        await sb.from('movimientos').delete().eq('id', id);
         await cargarDatos();
-      } catch (error) {
-        alert('Error: ' + error.message);
       }
     }
 
-    function toggleProfile() {
-      document.getElementById('profile-modal').classList.toggle('active');
-    }
-
-    function mostrarError(elementId, mensaje) {
-      const el = document.getElementById(elementId);
-      el.innerHTML = '❌ ' + mensaje;
-      el.className = 'error';
-      el.style.display = 'block';
-      setTimeout(() => { el.style.display = 'none'; }, 4000);
-    }
-
-    function mostrarExito(elementId, mensaje) {
-      const el = document.getElementById(elementId);
-      el.innerHTML = mensaje;
-      el.className = 'success';
-      el.style.display = 'block';
-    }
+    function toggleProfile() { document.getElementById('profile-modal').classList.toggle('active'); }
+    function mostrarError(id, msg) { const el = document.getElementById(id); el.innerHTML = '❌ ' + msg; el.style.display = 'block'; }
+    function mostrarExito(id, msg) { const el = document.getElementById(id); el.innerHTML = msg; el.style.display = 'block'; }
   </script>
 </body>
 </html>
