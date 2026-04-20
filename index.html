@@ -524,7 +524,12 @@
       "Otros": "📦", "Tarjeta": "💳", "Salud": "🏥", "Regalos": "🎁",
       "Compras": "🛍️", "Educación": "📚", "Entretenimiento": "🍿"
     };
-
+const PLACEHOLDERS = {
+  "Gasto": "¿En qué gastaste?",
+  "Ingreso": "¿De dónde vino?",
+  "Tarjeta": "¿Qué tarjeteaste?",
+  "Pendientes": "¿Qué deuda es?"
+};
     const CATEGORIAS = {
       "Gasto": ["Supermercado", "Servicios", "Transporte", "Salidas", "Farmacia", "Hogar", "Salud", "Regalos", "Compras", "Educación", "Entretenimiento", "Otros"],
       "Ingreso": ["Salarios", "Freelance", "Bonus", "Otros"],
@@ -633,15 +638,28 @@
       ev.target.classList.add('active');
     }
 
-    function setTipo(tipo, ev) {
-      tipoActual = tipo;
-      document.getElementById('tipo').value = tipo;
-      document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
-      if (ev) ev.target.classList.add('active');
-      document.getElementById('fManual').style.display = tipo === 'Pendientes' ? 'block' : 'none';
-      document.getElementById('lbl-venc').style.display = tipo === 'Pendientes' ? 'block' : 'none';
-      renderizarCategorias(tipo);
-    }
+   function setTipo(tipo, ev) {
+  // 1. Guardamos el tipo actual para el envío
+  tipoActual = tipo;
+  document.getElementById('tipo').value = tipo;
+  
+  // 2. Cambiamos el placeholder dinámicamente
+  const inputDetalle = document.getElementById('detalle');
+  inputDetalle.placeholder = PLACEHOLDERS[tipo] || "¿En qué gastaste?";
+  inputDetalle.value = ""; // Limpiamos el texto previo
+
+  // 3. Estética: Marcamos el botón como "activo"
+  document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
+  if (ev) ev.target.classList.add('active');
+  
+  // 4. Lógica especial: Mostramos fecha solo si es "Pendientes"
+  const displayVenc = (tipo === 'Pendientes') ? 'block' : 'none';
+  document.getElementById('fManual').style.display = displayVenc;
+  document.getElementById('lbl-venc').style.display = displayVenc;
+  
+  // 5. Actualizamos los íconos de categorías (Super, Salario, etc.)
+  renderizarCategorias(tipo);
+}
 
     function renderizarCategorias(tipo) {
       const cats = CATEGORIAS[tipo] || [];
