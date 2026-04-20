@@ -668,7 +668,7 @@ const SUPABASE_KEY = "sb_publishable_vM82Xw6ZT3Tyab6cDauGgg_XFFRuTlx";
         const { data: movimientos, error } = await supabase
           .from('movimientos')
           .select('*')
-          .eq('usuario_id', usuarioActual.id)
+          .eq('user_id', usuarioActual.id)
           .order('fecha', { ascending: false })
           .limit(100);
 
@@ -833,7 +833,7 @@ const SUPABASE_KEY = "sb_publishable_vM82Xw6ZT3Tyab6cDauGgg_XFFRuTlx";
 
       try {
         const { error } = await supabase.from('movimientos').insert([{
-          usuario_id: usuarioActual.id,
+          user_id: usuarioActual.id,
           tipo: tipoActual,
           categoria: categoriaActual,
           detalle: detalle,
