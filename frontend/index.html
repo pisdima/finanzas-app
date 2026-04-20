@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#6366f1">
+  <title>Finanzas Pro 💰</title>
+  <style>
+    :root {
+      --primary: #6366f1;
+      --success: #10b981;
+      --danger: #ef4444;
+      --bg: #f8f9fa;
+      --surface: #ffffff;
+      --text: #1f2937;
+      --muted: #9ca3af;
+      --border: #e5e7eb;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    /* MODAL AUTH */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--surface);
+      padding: 30px;
+      border-radius: 20px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .modal-content h2 {
+      font-size: 28px;
+      margin-bottom: 10px;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    .modal-content input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      background: var(--bg);
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, var(--primary) 0%, #4f46e5 100%);
+      color: white;
+      padding: 20px;
+      padding-top: 40px;
+      border-radius: 0 0 24px 24px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header-top h1 {
+      font-size: 24px;
+    }
+
+    .btn-profile {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .saldo-card {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .monto-grande {
+      font-size: 42px;
+      font-weight: 800;
+      margin: 10px 0;
+    }
+
+    .saldo-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 15px;
+      margin-top: 15px;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .saldo-info div {
+      text-align: center;
+    }
+
+    .saldo-info small {
+      opacity: 0.8;
+      font-size: 11px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .saldo-info span {
+      font-weight: 700;
+      font-size: 16px;
+    }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      background: var(--surface);
+      gap: 0;
+      margin: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .tab-item {
+      flex: 1;
+      padding: 12px;
+      background: none;
+      border: none;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.3s;
+    }
+
+    .tab-item.active {
+      background: var(--primary);
+      color: white;
+      border-radius: 12px;
+      margin: 3px;
+    }
+
+    /* CONTENIDO */
+    .tab-content {
+      display: none;
+      padding: 15px;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .card {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .card h3 {
+      font-size: 16px;
+      margin-bottom: 15px;
+      font-weight: 700;
+    }
+
+    .card h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin: 10px 0;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-secondary {
+      background: var(--bg);
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+      padding: 8px 12px;
+      width: auto;
+      font-size: 12px;
+    }
+
+    .selector-tipo {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .tipo-btn {
+      padding: 12px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+
+    .tipo-btn.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .grid-categorias {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 15px 0;
+    }
+
+    .categoria-btn {
+      padding: 12px;
+      background: var(--bg);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      font-size: 24px;
+      transition: all 0.3s;
+    }
+
+    .categoria-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .categoria-btn span {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 15px;
+      background: var(--bg);
+      border-radius: 12px;
+      margin-bottom: 10px;
+    }
+
+    .item-icon {
+      font-size: 28px;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      border-radius: 12px;
+    }
+
+    .item-info {
+      flex: 1;
+    }
+
+    .item-info b {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .item-info small {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .item-monto {
+      font-weight: 700;
+      font-size: 16px;
+      text-align: right;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: var(--muted);
+    }
+
+    .error {
+      background: #fee;
+      color: var(--danger);
+      padding: 10px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+
+    .success {
+      background: #efe;
+      color: var(--success);
+      padding: 10px;
+      border-radius: 8px;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- MODAL AUTH -->
+    <div id="auth-modal" class="modal active">
+      <div class="modal-content">
+        <h2>Finanzas Pro</h2>
+        <p style="color:var(--muted)">Gestiona tus finanzas inteligentemente</p>
+        
+        <div style="display:flex; gap:10px; margin:20px 0">
+          <button class="tab-btn active" onclick="switchAuth('login')">Ingresar</button>
+          <button class="tab-btn" onclick="switchAuth('register')">Registrarse</button>
+        </div>
+
+        <div id="login-form">
+          <input type="email" id="login-email" placeholder="Email">
+          <input type="password" id="login-password" placeholder="Contraseña">
+          <button class="btn btn-primary" onclick="handleLogin()">Ingresar</button>
+          <div id="login-error" style="display:none" class="error"></div>
+        </div>
+
+        <div id="register-form" style="display:none">
+          <input type="text" id="reg-nombre" placeholder="Nombre completo">
+          <input type="email" id="reg-email" placeholder="Email">
+          <input type="password" id="reg-password" placeholder="Contraseña (mín. 6 caracteres)">
+          <input type="password" id="reg-password2" placeholder="Confirmar contraseña">
+          <button class="btn btn-primary" onclick="handleRegister()">Crear cuenta</button>
+          <div id="register-error" style="display:none" class="error"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APP PRINCIPAL -->
+    <div id="app" style="display:none">
+      <!-- HEADER -->
+      <header class="header">
+        <div class="header-top">
+          <h1>Finanzas Pro</h1>
+          <button class="btn-profile" onclick="toggleProfile()">👤</button>
+        </div>
+        
+        <div class="saldo-card">
+          <small>Saldo disponible</small>
+          <div class="monto-grande" id="saldo-total">$0.00</div>
+          <div class="saldo-info">
+            <div>
+              <small>Ingresos</small>
+              <span id="total-ingresos">$0</span>
+            </div>
+            <div>
+              <small>Gastos</small>
+              <span id="total-gastos">$0</span>
+            </div>
+            <div>
+              <small>Tarjeta</small>
+              <span id="total-tarjeta">$0</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- TABS NAVEGACIÓN -->
+      <div class="tabs">
+        <button class="tab-item active" onclick="cambiarTab('dashboard', event)">📊 Inicio</button>
+        <button class="tab-item" onclick="cambiarTab('agregar', event)">➕ Agregar</button>
+        <button class="tab-item" onclick="cambiarTab('historial', event)">📜 Historial</button>
+      </div>
+
+      <!-- TAB: DASHBOARD -->
+      <div id="tab-dashboard" class="tab-content active">
+        <div class="card">
+          <h3>Resumen</h3>
+          <div id="resumen-rapido"></div>
+        </div>
+
+        <div class="card">
+          <h3>Últimas Transacciones</h3>
+          <div id="ultimas-transacciones" class="loading">Cargando...</div>
+        </div>
+      </div>
+
+      <!-- TAB: AGREGAR -->
+      <div id="tab-agregar" class="tab-content">
+        <div class="card">
+          <h2>Nuevo Movimiento</h2>
+          
+          <div class="selector-tipo">
+            <button class="tipo-btn active" onclick="setTipo('Gasto', event)">🔴 Gasto</button>
+            <button class="tipo-btn" onclick="setTipo('Ingreso', event)">🟢 Ingreso</button>
+            <button class="tipo-btn" onclick="setTipo('Tarjeta', event)">💳 Tarjeta</button>
+            <button class="tipo-btn" onclick="setTipo('Pendientes', event)">⏳ Pendiente</button>
+          </div>
+
+          <input type="hidden" id="tipo" value="Gasto">
+          
+          <h4 style="margin-top:20px; font-size:13px; color:var(--muted); font-weight:700">Categoría</h4>
+          <div id="categorias" class="grid-categorias"></div>
+
+          <span id="lbl-venc" style="display:none; font-size:13px; color:var(--primary); font-weight:700">📅 Fecha de Vencimiento:</span>
+          <input type="date" id="fManual" style="display:none">
+
+          <input type="number" id="monto" placeholder="Monto $" step="0.01" inputmode="decimal">
+          <input type="text" id="detalle" placeholder="¿En qué gastaste?">
+          
+          <button class="btn btn-primary" onclick="enviar()">Guardar</button>
+          
+          <div id="mensaje-respuesta" style="display:none; margin-top:10px"></div>
+        </div>
+      </div>
+
+      <!-- TAB: HISTORIAL -->
+      <div id="tab-historial" class="tab-content">
+        <div class="card">
+          <input type="text" id="buscar" placeholder="🔍 Buscar..." onkeyup="filtrar(this.value)">
+          <div id="lista-historial" class="loading">Cargando...</div>
+        </div>
+      </div>
+
+      <!-- MODAL PERFIL -->
+      <div id="profile-modal" class="modal">
+        <div class="modal-content">
+          <h3>Perfil</h3>
+          <p id="user-name" style="margin:10px 0; font-weight:600"></p>
+          <p id="user-email" style="margin:10px 0; color:var(--muted)"></p>
+          <button class="btn btn-danger" style="width:100%; background:var(--danger)" onclick="logout()">Cerrar Sesión</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPABASE SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    // ============================================
+    // CONFIGURACIÓN SUPABASE - REEMPLAZA ESTO
+    // ============================================
+const SUPABASE_URL = "https://xyzabc.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+
+    const { createClient } = window.supabase;
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // ============================================
+    // VARIABLES GLOBALES
+    // ============================================
+    const ICONS = {
+      "Supermercado": "🛒",
+      "Servicios": "⚡",
+      "Transporte": "🚌",
+      "Salidas": "🥳",
+      "Farmacia": "💊",
+      "Inversión": "📈",
+      "Salarios": "💰",
+      "Hogar": "🏠",
+      "Otros": "📦",
+      "Tarjeta": "💳",
+      "Salud": "🏥",
+      "Regalos": "🎁",
+      "Compras": "🛍️",
+      "Educación": "📚",
+      "Entretenimiento": "🍿"
+    };
+
+    const CATEGORIAS = {
+      "Gasto": ["Supermercado", "Servicios", "Transporte", "Salidas", "Farmacia", "Hogar", "Salud", "Regalos", "Compras", "Educación", "Entretenimiento", "Otros"],
+      "Ingreso": ["Salarios", "Freelance", "Bonus", "Otros"],
+      "Tarjeta": ["Tarjeta"],
+      "Pendientes": ["Servicios", "Salud", "Otros"]
+    };
+
+    let usuarioActual = null;
+    let tipoActual = 'Gasto';
+    let categoriaActual = null;
+    let datosCache = {};
+
+    // ============================================
+    // INIT
+    // ============================================
+    window.onload = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        usuarioActual = user;
+        document.getElementById('auth-modal').classList.remove('active');
+        document.getElementById('app').style.display = 'block';
+        document.getElementById('user-name').textContent = user.user_metadata?.nombre || user.email;
+        document.getElementById('user-email').textContent = user.email;
+        setTipo('Gasto');
+        await cargarDatos();
+      } else {
+        document.getElementById('auth-modal').classList.add('active');
+        document.getElementById('app').style.display = 'none';
+      }
+    };
+
+    // ============================================
+    // AUTENTICACIÓN
+    // ============================================
+    function switchAuth(tipo) {
+      document.getElementById('login-form').style.display = tipo === 'login' ? 'block' : 'none';
+      document.getElementById('register-form').style.display = tipo === 'register' ? 'block' : 'none';
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    async function handleLogin() {
+      const email = document.getElementById('login-email').value;
+      const password = document.getElementById('login-password').value;
+
+      if (!email || !password) {
+        mostrarError('login-error', 'Completa todos los campos');
+        return;
+      }
+
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        location.reload();
+      } catch (error) {
+        mostrarError('login-error', error.message);
+      }
+    }
+
+    async function handleRegister() {
+      const nombre = document.getElementById('reg-nombre').value;
+      const email = document.getElementById('reg-email').value;
+      const pass1 = document.getElementById('reg-password').value;
+      const pass2 = document.getElementById('reg-password2').value;
+
+      if (!nombre || !email || !pass1 || !pass2) {
+        mostrarError('register-error', 'Completa todos los campos');
+        return;
+      }
+
+      if (pass1 !== pass2) {
+        mostrarError('register-error', 'Las contraseñas no coinciden');
+        return;
+      }
+
+      if (pass1.length < 6) {
+        mostrarError('register-error', 'La contraseña debe tener al menos 6 caracteres');
+        return;
+      }
+
+      try {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { nombre }
+          }
+        });
+        if (error) throw error;
+        mostrarExito('register-error', 'Cuenta creada exitosamente');
+        setTimeout(() => location.reload(), 1000);
+      } catch (error) {
+        mostrarError('register-error', error.message);
+      }
+    }
+
+    async function logout() {
+      await supabase.auth.signOut();
+      location.reload();
+    }
+
+    // ============================================
+    // CARGA DE DATOS
+    // ============================================
+    async function cargarDatos() {
+      try {
+        const { data: movimientos, error } = await supabase
+          .from('movimientos')
+          .select('*')
+          .eq('usuario_id', usuarioActual.id)
+          .order('fecha', { ascending: false })
+          .limit(100);
+
+        if (error) throw error;
+
+        datosCache = procesarDatos(movimientos || []);
+        renderizarDashboard();
+        renderizarHistorial(movimientos || []);
+      } catch (error) {
+        console.error('Error cargando datos:', error);
+      }
+    }
+
+    function procesarDatos(movimientos) {
+      let saldoTotal = 0;
+      let totalIngresos = 0;
+      let totalGastos = 0;
+      let totalTarjeta = 0;
+
+      movimientos.forEach(m => {
+        if (m.tipo === 'Ingreso') {
+          totalIngresos += m.monto;
+          saldoTotal += m.monto;
+        } else if (m.tipo === 'Gasto') {
+          totalGastos += m.monto;
+          saldoTotal -= m.monto;
+        } else if (m.tipo === 'Tarjeta') {
+          totalTarjeta += m.monto;
+        }
+      });
+
+      return {
+        saldoTotal,
+        totalIngresos,
+        totalGastos,
+        totalTarjeta,
+        movimientos
+      };
+    }
+
+    // ============================================
+    // UI
+    // ============================================
+    function cambiarTab(nombre, ev) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+      document.getElementById('tab-' + nombre).classList.add('active');
+      ev.target.classList.add('active');
+    }
+
+    function setTipo(tipo, ev) {
+      tipoActual = tipo;
+      document.getElementById('tipo').value = tipo;
+      document.querySelectorAll('.tipo-btn').forEach(b => b.classList.remove('active'));
+      if (ev) ev.target.classList.add('active');
+
+      document.getElementById('fManual').style.display = tipo === 'Pendientes' ? 'block' : 'none';
+      document.getElementById('lbl-venc').style.display = tipo === 'Pendientes' ? 'block' : 'none';
+
+      renderizarCategorias(tipo);
+    }
+
+    function renderizarCategorias(tipo) {
+      const cats = CATEGORIAS[tipo] || [];
+      const grid = document.getElementById('categorias');
+      grid.innerHTML = cats.map(cat => `
+        <button class="categoria-btn" onclick="seleccionarCategoria('${cat}', event)">
+          ${ICONS[cat] || '📦'}
+          <span>${cat}</span>
+        </button>
+      `).join('');
+      categoriaActual = null;
+    }
+
+    function seleccionarCategoria(cat, ev) {
+      categoriaActual = cat;
+      document.querySelectorAll('.categoria-btn').forEach(b => b.classList.remove('active'));
+      ev.target.closest('button').classList.add('active');
+    }
+
+    function renderizarDashboard() {
+      const f = (n) => n.toLocaleString('es-AR', { minimumFractionDigits: 2 });
+      
+      document.getElementById('saldo-total').textContent = `$${f(datosCache.saldoTotal)}`;
+      document.getElementById('total-ingresos').textContent = `$${f(datosCache.totalIngresos)}`;
+      document.getElementById('total-gastos').textContent = `$${f(datosCache.totalGastos)}`;
+      document.getElementById('total-tarjeta').textContent = `$${f(datosCache.totalTarjeta)}`;
+
+      const ultimas = datosCache.movimientos.slice(0, 5);
+      const html = ultimas.map(m => `
+        <div class="item">
+          <div class="item-icon">${ICONS[m.categoria] || '📦'}</div>
+          <div class="item-info">
+            <b>${m.detalle}</b>
+            <small>${new Date(m.fecha).toLocaleDateString('es-AR')} • ${m.categoria}</small>
+          </div>
+          <div class="item-monto" style="color: ${m.tipo === 'Ingreso' ? 'var(--success)' : 'var(--danger)'}">
+            ${m.tipo === 'Ingreso' ? '+' : '-'}$${f(m.monto)}
+          </div>
+        </div>
+      `).join('') || '<p style="text-align:center; color:var(--muted)">Sin movimientos</p>';
+
+      document.getElementById('ultimas-transacciones').innerHTML = html;
+    }
+
+    function renderizarHistorial(movimientos) {
+      const f = (n) => n.toLocaleString('es-AR', { minimumFractionDigits: 2 });
+      
+      const html = movimientos.map(m => `
+        <div class="item">
+          <div class="item-icon">${ICONS[m.categoria] || '📦'}</div>
+          <div class="item-info">
+            <b>${m.detalle}</b>
+            <small>${new Date(m.fecha).toLocaleDateString('es-AR')} • ${m.categoria}</small>
+          </div>
+          <div class="item-monto" style="color: ${m.tipo === 'Ingreso' ? 'var(--success)' : 'var(--danger)'}">
+            ${m.tipo === 'Ingreso' ? '+' : '-'}$${f(m.monto)}
+          </div>
+          <button class="btn-danger" onclick="borrarMovimiento('${m.id}')">🗑</button>
+        </div>
+      `).join('') || '<p style="text-align:center; color:var(--muted)">Sin registros</p>';
+
+      document.getElementById('lista-historial').innerHTML = html;
+    }
+
+    function filtrar(valor) {
+      const movimientosFiltr = datosCache.movimientos.filter(m => 
+        m.detalle.toLowerCase().includes(valor.toLowerCase()) ||
+        m.categoria.toLowerCase().includes(valor.toLowerCase())
+      );
+      const f = (n) => n.toLocaleString('es-AR', { minimumFractionDigits: 2 });
+      
+      const html = movimientosFiltr.map(m => `
+        <div class="item">
+          <div class="item-icon">${ICONS[m.categoria] || '📦'}</div>
+          <div class="item-info">
+            <b>${m.detalle}</b>
+            <small>${new Date(m.fecha).toLocaleDateString('es-AR')} • ${m.categoria}</small>
+          </div>
+          <div class="item-monto" style="color: ${m.tipo === 'Ingreso' ? 'var(--success)' : 'var(--danger)'}">
+            ${m.tipo === 'Ingreso' ? '+' : '-'}$${f(m.monto)}
+          </div>
+        </div>
+      `).join('') || '<p style="text-align:center; color:var(--muted)">Sin resultados</p>';
+
+      document.getElementById('lista-historial').innerHTML = html;
+    }
+
+    // ============================================
+    // OPERACIONES
+    // ============================================
+    async function enviar() {
+      const monto = document.getElementById('monto').value;
+      const detalle = document.getElementById('detalle').value;
+      const fecha = document.getElementById('fManual').value;
+      const msgDiv = document.getElementById('mensaje-respuesta');
+
+      if (!categoriaActual || !monto || !detalle) {
+        mostrarError('mensaje-respuesta', 'Completa todos los campos');
+        return;
+      }
+
+      try {
+        const { error } = await supabase.from('movimientos').insert([{
+          usuario_id: usuarioActual.id,
+          tipo: tipoActual,
+          categoria: categoriaActual,
+          detalle: detalle,
+          monto: parseFloat(monto),
+          fecha: fecha || new Date().toISOString()
+        }]);
+
+        if (error) throw error;
+
+        mostrarExito('mensaje-respuesta', '✅ Guardado correctamente');
+        document.getElementById('monto').value = '';
+        document.getElementById('detalle').value = '';
+        document.getElementById('fManual').value = '';
+        
+        setTimeout(async () => {
+          await cargarDatos();
+          msgDiv.style.display = 'none';
+        }, 1000);
+      } catch (error) {
+        mostrarError('mensaje-respuesta', 'Error: ' + error.message);
+      }
+    }
+
+    async function borrarMovimiento(id) {
+      if (!confirm('¿Borrar este movimiento?')) return;
+
+      try {
+        const { error } = await supabase.from('movimientos').delete().eq('id', id);
+        if (error) throw error;
+        await cargarDatos();
+      } catch (error) {
+        alert('Error: ' + error.message);
+      }
+    }
+
+    function toggleProfile() {
+      document.getElementById('profile-modal').classList.toggle('active');
+    }
+
+    function mostrarError(elementId, mensaje) {
+      const el = document.getElementById(elementId);
+      el.innerHTML = '❌ ' + mensaje;
+      el.className = 'error';
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
+
+    function mostrarExito(elementId, mensaje) {
+      const el = document.getElementById(elementId);
+      el.innerHTML = mensaje;
+      el.className = 'success';
+      el.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
