@@ -710,20 +710,33 @@ const PLACEHOLDERS = {
     }
 
     async function enviar() {
-      const monto = document.getElementById('monto').value;
-      const detalle = document.getElementById('detalle').value;
-      const fecha = document.getElementById('fManual').value;
-      if (!categoriaActual || !monto || !detalle) { mostrarError('mensaje-respuesta', 'Completa todo'); return; }
-      try {
-        const { error } = await sb.from('movimientos').insert([{
-          user_id: usuarioActual.id, tipo: tipoActual, categoria: categoriaActual,
-          detalle, monto: parseFloat(monto), fecha: fecha || new Date().toISOString()
-        }]);
-        if (error) throw error;
-        mostrarExito('mensaje-respuesta', '✅ Guardado');
-        setTimeout(() => location.reload(), 1000);
-      } catch (error) { mostrarError('mensaje-respuesta', error.message); }
-    }
+  const monto = document.getElementById('monto').value;
+  const detalle = document.getElementById('detalle').value;
+  const fecha = document.getElementById('fManual').value;
+  
+  if (!categoriaActual || !monto || !detalle) { 
+    mostrarError('mensaje-respuesta', 'Completa todo'); 
+    return; 
+  }
+
+  try {
+    const { error } = await sb.from('movimientos').insert([{
+      user_id: usuarioActual.id, // Nombre confirmado por tu CSV
+      tipo: tipoActual, 
+      categoria: categoriaActual,
+      detalle: detalle, 
+      monto: parseFloat(monto), 
+      fecha: fecha || new Date().toISOString()
+    }]);
+
+    if (error) throw error;
+    
+    mostrarExito('mensaje-respuesta', '✅ ¡Guardado con éxito!');
+    setTimeout(() => location.reload(), 1000);
+  } catch (error) { 
+    mostrarError('mensaje-respuesta', error.message); 
+  }
+}
 
     async function borrarMovimiento(id) {
       if (confirm('¿Borrar?')) {
