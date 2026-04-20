@@ -738,12 +738,24 @@ const PLACEHOLDERS = {
   }
 }
 
-    async function borrarMovimiento(id) {
-      if (confirm('¿Borrar?')) {
-        await sb.from('movimientos').delete().eq('id', id);
-        await cargarDatos();
-      }
+   async function borrarMovimiento(id) {
+  if (confirm('¿Estás seguro de que querés borrar este registro?')) {
+    try {
+      const { error } = await sb
+        .from('movimientos')
+        .delete()
+        .eq('id', id); // Usamos el ID único del movimiento
+
+      if (error) throw error;
+
+      // Recargamos los datos para que desaparezca de la lista
+      await cargarDatos();
+      alert('Eliminado con éxito');
+    } catch (error) {
+      alert('Error al borrar: ' + error.message);
     }
+  }
+}
 
     function toggleProfile() { document.getElementById('profile-modal').classList.toggle('active'); }
     function mostrarError(id, msg) { const el = document.getElementById(id); el.innerHTML = '❌ ' + msg; el.style.display = 'block'; }
